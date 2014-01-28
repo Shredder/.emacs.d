@@ -166,7 +166,8 @@
 
 (dolist (p my-packages)
   (when (not (el-get-package-exists-p p))
-    (el-get-install p))
+    (el-get-do-install p)))
+(dolist (p my-packages)
   (el-get-do-init p))
 ;;; /el-get
 

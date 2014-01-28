@@ -7,6 +7,7 @@
       visual-line-fringe-indicators '(nil right-curly-arrow)
       make-backup-files nil
       auto-save-default nil
+      initial-scratch-message ""
       )
 
 (setq-default indent-tabs-mode nil
