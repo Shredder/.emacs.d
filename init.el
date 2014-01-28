@@ -1,7 +1,8 @@
 ;; Turn off mouse interface early in startup to avoid momentary display
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'scroll-bar-mode) (scoll-bar-mode -1))
+;; TODO
+;; (if (fboundp 'scroll-bar-mode) (scoll-bar-mode -1))
 
 ;; Inhibit startup clutter
 (setq inhibit-startup-message t
@@ -165,10 +166,8 @@
 
 (dolist (p my-packages)
   (when (not (el-get-package-exists-p p))
-    (el-get-install p)))
-
-;;  (el-get-do-init p))
-
+    (el-get-install p))
+  (el-get-do-init p))
 ;;; /el-get
 
 ;;;; Actual package configuration follows
@@ -325,10 +324,11 @@
                     key-chord-two-key-delay 0.3)
               (key-chord-mode 1)
               (if use-evil-p
-                  ((key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
-                   (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
-                   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-                   (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)))
+                  (progn
+                    (key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
+                    (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
+                    (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+                    (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)))
               ;; Quick toggle of two most recent buffers
               (fset 'quick-switch-buffer [?\C-x ?b return])
               (key-chord-define-global ",." 'quick-switch-buffer)
