@@ -19,30 +19,33 @@
 ;; and customize.
 ;; Add other .el files in that directory to further setup emacs. These files
 ;; will be loaded (in alphabetic order) at the end of this emacs config.
-(setq use-evil-p nil
-      use-org-p t
-      use-yasnippet-p nil
-      use-auto-complete-p nil
-      use-browse-kill-ring-p t
-      use-multiple-cursors-p nil
-      use-ace-jump-mode-p t
-      use-expand-region-p nil
-      use-ibuffer-vc-p t
-      use-ibuffer-p t
-      use-key-chord-p t
-      use-ido-p t
-      use-smex-p t
-      use-desktop-p t
-      use-undo-tree-p t
-      use-magit-p nil
-      use-back-button-p t
-      use-guide-key-p t
-      use-better-defaults-p t
-      use-ido-anywhere-p t
-      use-setup-keys-p nil
-      use-zenburn-theme-p t
-      )
+(setq default-package-settings-alist
+      '((evil . nil)
+        (org . t)
+        (yasnippet . nil)
+        (auto-complete . nil)
+        (browse-kill-ring . t)
+        (multiple-cursors . nil)
+        (ace-jump-mode . t)
+        (expand-region . nil)
+        (ibuffer-vc . t)
+        (ibuffer . t)
+        (key-chord . t)
+        (ido . t)
+        (smex . t)
+        (desktop . t)
+        (undo-tree . t)
+        (magit . nil)
+        (back-button . t)
+        (guide-key . t)
+        (better-defaults . t)
+        (ido-anywhere . t)
+        (setup-keys . nil)
+        (zenburn-theme . t)
+        ))
 
+(defun use-package-p (p)
+  (assoc-default p default-package-settings-alist nil nil))
 ;;;; Path setup
 
 ;; Packages administered through package.el and el-get automatically have
@@ -73,6 +76,14 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (setq user-package-conf (concat user-settings-dir "/use-package-config.el"))
+
+(unless (file-exists-p user-package-conf)
+  (append-to-file
+   (mapconcat (lambda (x)
+                (format ";; (push '(%s . t) default-package-settings-alist)" (car x)))
+                default-package-settings-alist "\n")
+   nil
+   user-package-conf))
 
 ;; Create directories
 (setq my-dirs (list site-lisp-dir
@@ -177,12 +188,12 @@
 (use-package s
   :ensure s)
 
-(if use-better-defaults-p
+(if (use-package-p 'better-defaults)
     (use-package better-defaults
       :ensure better-defaults
       ))
 
-(if use-evil-p
+(if (use-package-p 'evil)
     (use-package evil
       :ensure evil
       :init (progn
@@ -235,7 +246,7 @@
                         ))
               )))
 
-(if use-guide-key-p
+(if (use-package-p 'guide-key)
     (use-package guide-key
       :ensure guide-key
       :init (progn
@@ -246,14 +257,14 @@
               (guide-key-mode 1)
               )))
 
-(if use-back-button-p
+(if (use-package-p 'back-button)
     (use-package back-button
       :ensure back-button
       :init (progn
               (back-button-mode 1)
               )))
 
-(if use-magit-p
+(if (use-package-p 'magit)
     (use-package magit
       :ensure magit
       :init (progn
@@ -263,25 +274,26 @@
              ("C-x m" . magit-status)
              )))
 
-(if use-undo-tree-p
+(if (use-package-p 'undo-tree)
     (use-package undo-tree
       :ensure undo-tree
       :init (progn
               (global-undo-tree-mode 1)
-              ))
+              )))
 
-  (use-package desktop
-    :ensure desktop
-    :init (progn
-            (desktop-save-mode 1)
-            (defun my-desktop-save ()
-              (interactive)
-              (if (eq (desktop-owner) (emacs-pid))
-                  (desktop-save desktop-dirname)))
-            (add-hook 'auto-save-hook 'my-desktop-save)
-            )))
+(if (use-package-p 'desktop)
+    (use-package desktop
+      :ensure desktop
+      :init (progn
+              (desktop-save-mode 1)
+              (defun my-desktop-save ()
+                (interactive)
+                (if (eq (desktop-owner) (emacs-pid))
+                    (desktop-save desktop-dirname)))
+              (add-hook 'auto-save-hook 'my-desktop-save)
+              )))
 
-(if use-smex-p
+(if (use-package-p 'smex)
     (use-package smex
       :ensure smex
       :init (progn
@@ -295,7 +307,7 @@
                                         ; (use-package jump-char)
 					; (use-package sane-defaults)
 
-(if use-ido-p
+(if (use-package-p 'ido)
     (use-package ido
       :ensure ido
       :init (progn
@@ -307,7 +319,7 @@
              ("C-x f" . recentf-ido-find-file)
              )))
 
-(if use-ido-anywhere-p
+(if (use-package-p 'ido-anywhere)
     (use-package imenu-anywhere
       :ensure imenu-anywhere
       :bind (
@@ -316,7 +328,7 @@
 
 ;; python-mode.el omitted
 
-(if use-key-chord-p
+(if (use-package-p 'key-chord)
     (use-package key-chord
       :ensure key-chord
       :init (progn
@@ -324,7 +336,7 @@
               (setq key-chord-one-key-delay 0.3
                     key-chord-two-key-delay 0.3)
               (key-chord-mode 1)
-              (if use-evil-p
+              (if (use-package-p 'evil)
                   (progn
                     (key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
                     (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
@@ -335,7 +347,7 @@
               (key-chord-define-global ",." 'quick-switch-buffer)
               )))
 
-(if use-ibuffer-p
+(if (use-package-p 'ibuffer)
     (use-package ibuffer
       :ensure ibuffer
       :init (progn
@@ -345,7 +357,7 @@
              ("C-x C-b" . ibuffer-other-window)
              )))
 
-(if use-ibuffer-vc-p
+(if (use-package-p 'ibuffer-vc)
     (use-package ibuffer-vc
       :ensure ibuffer-vc
       :init (progn
@@ -356,7 +368,7 @@
                             (ibuffer-do-sort-by-alphabetic))))
               )))
 
-(if use-expand-region-p
+(if (use-package-p 'expand-region)
     (use-package expand-region
       :ensure expand-region
       :bind (
@@ -364,14 +376,14 @@
              ("C-M-'" . er/contract-region)
              )))
 
-(if use-ace-jump-mode-p
+(if (use-package-p 'ace-jump-mode)
     (use-package ace-jump-mode
       :ensure ace-jump-mode
       :bind (
              ("C-c SPC" . ace-jump-mode)
              )))
 
-(if use-multiple-cursors-p
+(if (use-package-p 'multiple-cursors)
     (use-package multiple-cursors
       :ensure multiple-cursors
       :bind (
@@ -384,7 +396,7 @@
 
 ;; fastnav omitted
 
-(if use-yasnippet-p
+(if (use-package-p 'yasnippet)
     (use-package yasnippet
       :ensure yasnippet
       :init (progn
@@ -393,14 +405,14 @@
               (yas/load-directory yas/root-directory)
               )))
 
-(if use-browse-kill-ring-p
+(if (use-package-p 'browse-kill-ring)
     (use-package browse-kill-ring
       :ensure browse-kill-ring
       :bind (
              ("C-x C-y" . browse-kill-ring)
              )))
 
-(if use-org-p
+(if (use-package-p 'org)
     (use-package org
       :ensure org
       :init (progn
@@ -451,13 +463,13 @@
              ("C-c r" . org-remember)
              )))
 
-(if use-zenburn-theme-p
+(if (use-package-p 'zenburn-theme)
     (if (display-graphic-p)
         (use-package zenburn-theme
           :ensure zenburn-theme
           )))
 
-(if use-auto-complete-p
+(if (use-package-p 'auto-complete)
     (use-package auto-complete
       :ensure auto-complete
       :init (progn
@@ -470,7 +482,7 @@
 (unless (server-running-p)
   (server-start))
 
-(if use-setup-keys-p
+(if (use-package-p 'setup-keys)
     (require 'setup-keys))
 
 ;; Conclude init by setting up specifics for the current user
