@@ -1,0 +1,4 @@
+(:name evil-exchange
+       :description "evil-exchange"
+       :type github
+       :pkgname "Dewdrops/evil-exchange")

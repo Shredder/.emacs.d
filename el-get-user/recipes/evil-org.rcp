@@ -1,0 +1,4 @@
+(:name evil-org
+       :description "evil-org"
+       :type github
+       :pkgname "edwtjo/evil-org-mode")
