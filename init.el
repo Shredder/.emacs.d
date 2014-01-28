@@ -1,3 +1,12 @@
+;; Turn off mouse interface early in startup to avoid momentary display
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'scroll-bar-mode) (scoll-bar-mode -1))
+
+;; Inhibit startup clutter
+(setq inhibit-startup-message t
+      inhibit-startup-screen t)
+
 ;; We use use-package with package.el backend to maintain external packages.
 ;; Packages which are not available via package.el are installed and added to
 ;; the load-path with el-get. Then they can be initialized with use-package.
@@ -9,7 +18,7 @@
 ;; and customize.
 ;; Add other .el files in that directory to further setup emacs. These files
 ;; will be loaded (in alphabetic order) at the end of this emacs config.
-(setq use-evil-p t
+(setq use-evil-p nil
       use-org-p t
       use-yasnippet-p nil
       use-auto-complete-p nil
@@ -32,15 +41,6 @@
       use-setup-keys-p nil
       use-zenburn-theme-p t
       )
-
-;; Turn off mouse interface early in startup to avoid momentary display
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'scroll-bar-mode) (scoll-bar-mode -1))
-
-;; Inhibit startup clutter
-(setq inhibit-startup-message t
-      inhibit-startup-screen t)
 
 ;;;; Path setup
 
@@ -126,11 +126,12 @@
 
 ;; Initialization of package.el
 (require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages"))
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
+(package-refresh-contents)
 
                                         ;(if (null (require 'req-package "req-package" t))
                                         ;    (progn (package-install 'req-package)
@@ -151,6 +152,7 @@
     (goto-char (point-max))
     (eval-print-last-sexp)))
 
+(require 'el-get)
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
 
 ;; Packages which are not available through package.el
@@ -163,8 +165,9 @@
 
 (dolist (p my-packages)
   (when (not (el-get-package-exists-p p))
-    (el-get-install p))
-  (el-get-do-init p))
+    (el-get-install p)))
+
+;;  (el-get-do-init p))
 
 ;;; /el-get
 
@@ -321,10 +324,11 @@
               (setq key-chord-one-key-delay 0.3
                     key-chord-two-key-delay 0.3)
               (key-chord-mode 1)
-              (key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
-              (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
-              (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-              (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)
+              (if use-evil-p
+                  ((key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
+                   (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
+                   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+                   (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)))
               ;; Quick toggle of two most recent buffers
               (fset 'quick-switch-buffer [?\C-x ?b return])
               (key-chord-define-global ",." 'quick-switch-buffer)
