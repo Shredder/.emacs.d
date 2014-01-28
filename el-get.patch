@@ -1,0 +1,14 @@
+diff --git a/el-get.el b/el-get.el
+index cf5172d..4e01c05 100644
+--- a/el-get.el
++++ b/el-get.el
+@@ -543,7 +543,8 @@ called by `el-get' (usually at startup) for each installed package."
+             (dolist (feat feats)
+               (let ((feature (el-get-as-symbol feat)))
+                 (el-get-verbose-message "require '%s" feature)
+-                (require feature)))))
++                ;; (require feature)))))
++                ))))
+ 
+         (let ((el-get-maybe-lazy-runsupp
+                (if lazy
