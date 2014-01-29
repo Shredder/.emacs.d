@@ -431,6 +431,8 @@
     :init (progn
             (yas-global-mode 1)
             (setq yas/root-directory "~/.emacs.d/yasnippet-snippets")
+            (unless (file-directory-p yas/root-directory)
+              (mkdir yas/root-directory))
             (yas/load-directory yas/root-directory)
             )))
 
