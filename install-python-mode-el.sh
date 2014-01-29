@@ -8,5 +8,7 @@ if [[ ! -d "$SITE_LISP_DIR" ]]; then
   mkdir $SITE_LISP_DIR
 fi
 
-curl -L https://launchpad.net/python-mode/trunk/$PYTHON_MODE_VERSION/+download/$PYTHON_MODE.tar.gz | tar -xz -C $SITE_LISP_DIR
+# Temporary workaround
+#curl -L https://launchpad.net/python-mode/trunk/$PYTHON_MODE_VERSION/+download/$PYTHON_MODE.tar.gz | tar -xz -C $SITE_LISP_DIR
+curl -L https://launchpadlibrarian.net/163833114/$PYTHON_MODE.tar.gz | tar -xz -C $SITE_LISP_DIR
 (cd $SITE_LISP_DIR && ln -s $PYTHON_MODE python-mode.el-current)
