@@ -42,7 +42,7 @@
         (ido-anywhere . t)
         (setup-keys . nil)
         (zenburn-theme . t)
-        (python-mode.el t)
+        (python-mode.el nil)
         ))
 
 (defun use-package-p (p)
@@ -174,21 +174,27 @@
                    '(evil-surround
                      evil-exchange
                      evil-org
+                     python-mode-el
                      )
                    (mapcar 'el-get-source-name el-get-sources)))
 
+;; Install
 (dolist (p my-packages)
   (when (not (el-get-package-exists-p p))
     (el-get-do-install p)))
+
+;; Initialize (set load-path)
 (dolist (p my-packages)
   (el-get-do-init p))
+
 ;;; /el-get
 
 ;;;; Actual package configuration follows
 
 (if (use-package-p 'python-mode.el)
-    (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
-  (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
+    ;; (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
+  ;; (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
+  (setq py-install-directory (concat user-emacs-directory "/el-get/python-mode-el"))
   (use-package python-mode
     :init (progn
             (use-package jedi
@@ -197,7 +203,7 @@
                       (setq jedi:setup-keys t)
                       (setq jedi:complete-on-dot t)))
             (add-hook 'python-mode-hook (lambda ()
-                                          ('jedi:setup)
+                                          (jedi:setup)
                                           (define-key python-mode-map "\r" 'newline-and-indent)
                                           (define-key python-mode-map (kbd "M-p") 'python-nav-backward-block)
                                           (define-key python-mode-map (kbd "M-n") 'python-nav-forward-block)
