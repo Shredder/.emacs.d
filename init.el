@@ -174,7 +174,7 @@
                    '(evil-surround
                      evil-exchange
                      evil-org
-                     python-mode-el
+                     ;; python-mode-el
                      )
                    (mapcar 'el-get-source-name el-get-sources)))
 
@@ -191,10 +191,10 @@
 
 ;;;; Actual package configuration follows
 
-(if (use-package-p 'python-mode.el)
-    ;; (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
-  ;; (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
-  (setq py-install-directory (concat user-emacs-directory "/el-get/python-mode-el"))
+(when (use-package-p 'python-mode.el)
+  (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
+  (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
+  ;; (setq py-install-directory (concat user-emacs-directory "/el-get/python-mode-el"))
   (use-package python-mode
     :init (progn
             (use-package jedi
@@ -217,302 +217,302 @@
 (use-package s
   :ensure s)
 
-(if (use-package-p 'better-defaults)
-    (use-package better-defaults
-      :ensure better-defaults
-      ))
+(when (use-package-p 'better-defaults)
+  (use-package better-defaults
+    :ensure better-defaults
+    ))
 
-(if (use-package-p 'evil)
-    (use-package evil
-      :ensure evil
-      :init (progn
-              (evil-mode 1)
-              (require 'cl)
-              ;; Change modeline color with mode
-              (lexical-let ((default-color (cons (face-background 'mode-line)
-                                                 (face-foreground 'mode-line))))
-                (add-hook 'post-command-hook
-                          (lambda ()
-                            (let ((color (cond ((minibufferp) default-color)
-                                               ((evil-insert-state-p) '("#e80000" . "#ffffff"))
-                                               ((evil-emacs-state-p) '("#444488" . "#ffffff"))
-                                               ((buffer-modified-p) '("#006fa0" . "#ffffff"))
-                                               (t default-color))))
-                              (set-face-background 'mode-line (car color))
-                              (set-face-foreground 'mode-line (cdr color))))))
-              ;; evil-surround
-              (use-package surround
-                ;; Installed by el-get
-                :init (progn
-                        (global-surround-mode 1)
-                        ))
-              (use-package evil-matchit
-                :ensure evil-matchit
-                :init (progn
-                        (global-evil-matchit-mode 1)
-                        ))
-              (use-package evil-exchange
-                ;; Installed by el-get
-                :init (progn
-                        ;; (setq evil-exchange-key (kbd "z"))
-                        (evil-exchange-install)
-                        ))
-              (use-package evil-nerd-commenter
-                :ensure evil-nerd-commenter
-                :init (progn
-                        (evilnc-default-hotkeys)
-                        ))
-              (use-package evil-leader
-                :ensure evil-leader
-                :init (progn
-                        (global-evil-leader-mode)
-                        (evil-leader/set-leader ",")
-                        (evil-leader/set-key
-                          "e" 'find-file
-                          "b" 'switch-to-buffer
-                          "k" 'kill-buffer
-                          )
-                        ))
-              )))
+(when (use-package-p 'evil)
+  (use-package evil
+    :ensure evil
+    :init (progn
+            (evil-mode 1)
+            (require 'cl)
+            ;; Change modeline color with mode
+            (lexical-let ((default-color (cons (face-background 'mode-line)
+                                               (face-foreground 'mode-line))))
+              (add-hook 'post-command-hook
+                        (lambda ()
+                          (let ((color (cond ((minibufferp) default-color)
+                                             ((evil-insert-state-p) '("#e80000" . "#ffffff"))
+                                             ((evil-emacs-state-p) '("#444488" . "#ffffff"))
+                                             ((buffer-modified-p) '("#006fa0" . "#ffffff"))
+                                             (t default-color))))
+                            (set-face-background 'mode-line (car color))
+                            (set-face-foreground 'mode-line (cdr color))))))
+            ;; evil-surround
+            (use-package surround
+              ;; Installed by el-get
+              :init (progn
+                      (global-surround-mode 1)
+                      ))
+            (use-package evil-matchit
+              :ensure evil-matchit
+              :init (progn
+                      (global-evil-matchit-mode 1)
+                      ))
+            (use-package evil-exchange
+              ;; Installed by el-get
+              :init (progn
+                      ;; (setq evil-exchange-key (kbd "z"))
+                      (evil-exchange-install)
+                      ))
+            (use-package evil-nerd-commenter
+              :ensure evil-nerd-commenter
+              :init (progn
+                      (evilnc-default-hotkeys)
+                      ))
+            (use-package evil-leader
+              :ensure evil-leader
+              :init (progn
+                      (global-evil-leader-mode)
+                      (evil-leader/set-leader ",")
+                      (evil-leader/set-key
+                        "e" 'find-file
+                        "b" 'switch-to-buffer
+                        "k" 'kill-buffer
+                        )
+                      ))
+            )))
 
-(if (use-package-p 'guide-key)
-    (use-package guide-key
-      :ensure guide-key
-      :init (progn
-              (setq guide-key/guide-key-sequence '("C-x" "C-c")
-                    guide-key/recursive-key-sequence-flag t
-                    guide-key/idle-delay 0.5
-                    )
-              (guide-key-mode 1)
-              )))
+(when (use-package-p 'guide-key)
+  (use-package guide-key
+    :ensure guide-key
+    :init (progn
+            (setq guide-key/guide-key-sequence '("C-x" "C-c")
+                  guide-key/recursive-key-sequence-flag t
+                  guide-key/idle-delay 0.5
+                  )
+            (guide-key-mode 1)
+            )))
 
-(if (use-package-p 'back-button)
-    (use-package back-button
-      :ensure back-button
-      :init (progn
-              (back-button-mode 1)
-              )))
+(when (use-package-p 'back-button)
+  (use-package back-button
+    :ensure back-button
+    :init (progn
+            (back-button-mode 1)
+            )))
 
-(if (use-package-p 'magit)
-    (use-package magit
-      :ensure magit
-      :init (progn
-              (autoload 'magit-status "magit")
-              )
-      :bind (
-             ("C-x m" . magit-status)
-             )))
+(when (use-package-p 'magit)
+  (use-package magit
+    :ensure magit
+    :init (progn
+            (autoload 'magit-status "magit")
+            )
+    :bind (
+           ("C-x m" . magit-status)
+           )))
 
-(if (use-package-p 'undo-tree)
-    (use-package undo-tree
-      :ensure undo-tree
-      :init (progn
-              (global-undo-tree-mode 1)
-              )))
+(when (use-package-p 'undo-tree)
+  (use-package undo-tree
+    :ensure undo-tree
+    :init (progn
+            (global-undo-tree-mode 1)
+            )))
 
-(if (use-package-p 'desktop)
-    (use-package desktop
-      :ensure desktop
-      :init (progn
-              (desktop-save-mode 1)
-              (defun my-desktop-save ()
-                (interactive)
-                (if (eq (desktop-owner) (emacs-pid))
-                    (desktop-save desktop-dirname)))
-              (add-hook 'auto-save-hook 'my-desktop-save)
-              )))
+(when (use-package-p 'desktop)
+  (use-package desktop
+    :ensure desktop
+    :init (progn
+            (desktop-save-mode 1)
+            (defun my-desktop-save ()
+              (interactive)
+              (if (eq (desktop-owner) (emacs-pid))
+                  (desktop-save desktop-dirname)))
+            (add-hook 'auto-save-hook 'my-desktop-save)
+            )))
 
-(if (use-package-p 'smex)
-    (use-package smex
-      :ensure smex
-      :init (progn
-              (smex-initialize)
-              )
-      :bind (
-             ("M-x" . smex)
-             ("C-x C-m" . smex)
-             )))
+(when (use-package-p 'smex)
+  (use-package smex
+    :ensure smex
+    :init (progn
+            (smex-initialize)
+            )
+    :bind (
+           ("M-x" . smex)
+           ("C-x C-m" . smex)
+           )))
 
                                         ; (use-package jump-char)
 					; (use-package sane-defaults)
 
-(if (use-package-p 'ido)
-    (use-package ido
-      :ensure ido
-      :init (progn
-              (ido-mode t)
-              )
-      :bind (
-             ("C-x C-i" . ido-imenu)
-             ("C-x M-f" . ido-find-file-other-window)
-             ("C-x f" . recentf-ido-find-file)
-             )))
+(when (use-package-p 'ido)
+  (use-package ido
+    :ensure ido
+    :init (progn
+            (ido-mode t)
+            )
+    :bind (
+           ("C-x C-i" . ido-imenu)
+           ("C-x M-f" . ido-find-file-other-window)
+           ("C-x f" . recentf-ido-find-file)
+           )))
 
-(if (use-package-p 'ido-anywhere)
-    (use-package imenu-anywhere
-      :ensure imenu-anywhere
-      :bind (
-             ("C-M-x C-M-i" . imenu-anywhere)
-             )))
+(when (use-package-p 'ido-anywhere)
+  (use-package imenu-anywhere
+    :ensure imenu-anywhere
+    :bind (
+           ("C-M-x C-M-i" . imenu-anywhere)
+           )))
 
 ;; python-mode.el omitted
 
-(if (use-package-p 'key-chord)
-    (use-package key-chord
-      :ensure key-chord
-      :init (progn
-              ;; (key-chord-define-global "hj" 'undo)
-              (setq key-chord-one-key-delay 0.3
-                    key-chord-two-key-delay 0.3)
-              (key-chord-mode 1)
-              (if (use-package-p 'evil)
-                  (progn
-                    (key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
-                    (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
-                    (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-                    (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)))
-              ;; Quick toggle of two most recent buffers
-              (fset 'quick-switch-buffer [?\C-x ?b return])
-              (key-chord-define-global ",." 'quick-switch-buffer)
-              )))
+(when (use-package-p 'key-chord)
+  (use-package key-chord
+    :ensure key-chord
+    :init (progn
+            ;; (key-chord-define-global "hj" 'undo)
+            (setq key-chord-one-key-delay 0.3
+                  key-chord-two-key-delay 0.3)
+            (key-chord-mode 1)
+            (if (use-package-p 'evil)
+                (progn
+                  (key-chord-define evil-normal-state-map "jk" 'evil-force-normal-state)
+                  (key-chord-define evil-visual-state-map "jk" 'evil-change-to-previous-state)
+                  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+                  (key-chord-define evil-replace-state-map "jk" 'evil-normal-state)))
+            ;; Quick toggle of two most recent buffers
+            (fset 'quick-switch-buffer [?\C-x ?b return])
+            (key-chord-define-global ",." 'quick-switch-buffer)
+            )))
 
-(if (use-package-p 'ibuffer)
-    (use-package ibuffer
-      :ensure ibuffer
-      :init (progn
-              (setq ibuffer-default-sorting-mode 'major-mode)
-              )
-      :bind (
-             ("C-x C-b" . ibuffer-other-window)
-             )))
+(when (use-package-p 'ibuffer)
+  (use-package ibuffer
+    :ensure ibuffer
+    :init (progn
+            (setq ibuffer-default-sorting-mode 'major-mode)
+            )
+    :bind (
+           ("C-x C-b" . ibuffer-other-window)
+           )))
 
-(if (use-package-p 'ibuffer-vc)
-    (use-package ibuffer-vc
-      :ensure ibuffer-vc
-      :init (progn
-              (add-hook 'ibuffer-hook
-                        (lambda ()
-                          (ibuffer-vc-set-filter-groups-by-vc-root)
-                          (unless (eq ibuffer-sorting-mode 'alphabetic)
-                            (ibuffer-do-sort-by-alphabetic))))
-              )))
+(when (use-package-p 'ibuffer-vc)
+  (use-package ibuffer-vc
+    :ensure ibuffer-vc
+    :init (progn
+            (add-hook 'ibuffer-hook
+                      (lambda ()
+                        (ibuffer-vc-set-filter-groups-by-vc-root)
+                        (unless (eq ibuffer-sorting-mode 'alphabetic)
+                          (ibuffer-do-sort-by-alphabetic))))
+            )))
 
-(if (use-package-p 'expand-region)
-    (use-package expand-region
-      :ensure expand-region
-      :bind (
-             ("C-'" . er/expand-region)
-             ("C-M-'" . er/contract-region)
-             )))
+(when (use-package-p 'expand-region)
+  (use-package expand-region
+    :ensure expand-region
+    :bind (
+           ("C-'" . er/expand-region)
+           ("C-M-'" . er/contract-region)
+           )))
 
-(if (use-package-p 'ace-jump-mode)
-    (use-package ace-jump-mode
-      :ensure ace-jump-mode
-      :bind (
-             ("C-c SPC" . ace-jump-mode)
-             )))
+(when (use-package-p 'ace-jump-mode)
+  (use-package ace-jump-mode
+    :ensure ace-jump-mode
+    :bind (
+           ("C-c SPC" . ace-jump-mode)
+           )))
 
-(if (use-package-p 'multiple-cursors)
-    (use-package multiple-cursors
-      :ensure multiple-cursors
-      :bind (
-             ("C-S-c C-S-c" . mc/edit-lines)
-             ("C->" . mc/mark-next-like-this)
-             ("C-<" . mc/mark-previous-like-this)
-             ("C-S-c C-e" . mc-edit-ends-of-lines)
-             ("C-S-c C-a" . mc-edit-beginnings-of-lines)
-             )))
+(when (use-package-p 'multiple-cursors)
+  (use-package multiple-cursors
+    :ensure multiple-cursors
+    :bind (
+           ("C-S-c C-S-c" . mc/edit-lines)
+           ("C->" . mc/mark-next-like-this)
+           ("C-<" . mc/mark-previous-like-this)
+           ("C-S-c C-e" . mc-edit-ends-of-lines)
+           ("C-S-c C-a" . mc-edit-beginnings-of-lines)
+           )))
 
 ;; fastnav omitted
 
-(if (use-package-p 'yasnippet)
-    (use-package yasnippet
-      :ensure yasnippet
-      :init (progn
-              (yas-global-mode 1)
-              (setq yas/root-directory "~/.emacs.d/yasnippet-snippets")
-              (yas/load-directory yas/root-directory)
-              )))
+(when (use-package-p 'yasnippet)
+  (use-package yasnippet
+    :ensure yasnippet
+    :init (progn
+            (yas-global-mode 1)
+            (setq yas/root-directory "~/.emacs.d/yasnippet-snippets")
+            (yas/load-directory yas/root-directory)
+            )))
 
-(if (use-package-p 'browse-kill-ring)
-    (use-package browse-kill-ring
-      :ensure browse-kill-ring
-      :bind (
-             ("C-x C-y" . browse-kill-ring)
-             )))
+(when (use-package-p 'browse-kill-ring)
+  (use-package browse-kill-ring
+    :ensure browse-kill-ring
+    :bind (
+           ("C-x C-y" . browse-kill-ring)
+           )))
 
-(if (use-package-p 'org)
-    (use-package org
-      :ensure org
-      :init (progn
-              (setq org-directory "~/org"
-                    org-default-notes-file (concat org-directory "/notes.org")
-                    org-log-done 'time
-                    org-hide-leading-stars t
-                    org-fast-tag-selection-single-key nil
-                    org-export-htmlize-output-type 'css
-                    org-completion-use-ido t
-                    org-special-ctrl-a/e t
-                    org-special-ctrl-k t
-                    org-odd-levels-only t
-                    org-log-into-drawer t
-                    org-todo-keywords '(
-                                        (sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)" "|" "DONE(d!)")
-                                        (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                                        (sequence "|" "CANCELED(c@)")
-                                        )
-                    org-tag-alist '(
-                                    ;; Nature
-                                    (:startgroup . nil)
-                                    ("@work" . ?w)
-                                    ("@private" . ?p)
-                                    (:endgroup . nil)
-                                    ;; Context
-                                    (:startgroup . nil)
-                                    ("@telephone" . ?t)
-                                    ("@email" . ?e)
-                                    ("@in_person" . ?i)
-                                    ("@web" . ?n)
-                                    (:endgroup . nil)
-                                    ;; Action
-                                    (:startgroup . nil)
-                                    ("@money_xfer" . ?m)
-                                    ("@buy" . ?b)
-                                    ("@read" . ?r)
-                                    ("@plan" . ?l)
-                                    (:endgroup . nil)
-                                    )
-                    )
-              (use-package evil-org)
-              )
-      :bind (
-             ("C-c l" . org-store-link)
-             ("C-c a" . org-agenda)
-             ("C-c c" . org-capture)
-             ("C-c r" . org-remember)
-             )))
+(when (use-package-p 'org)
+  (use-package org
+    :ensure org
+    :init (progn
+            (setq org-directory "~/org"
+                  org-default-notes-file (concat org-directory "/notes.org")
+                  org-log-done 'time
+                  org-hide-leading-stars t
+                  org-fast-tag-selection-single-key nil
+                  org-export-htmlize-output-type 'css
+                  org-completion-use-ido t
+                  org-special-ctrl-a/e t
+                  org-special-ctrl-k t
+                  org-odd-levels-only t
+                  org-log-into-drawer t
+                  org-todo-keywords '(
+                                      (sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)" "|" "DONE(d!)")
+                                      (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+                                      (sequence "|" "CANCELED(c@)")
+                                      )
+                  org-tag-alist '(
+                                  ;; Nature
+                                  (:startgroup . nil)
+                                  ("@work" . ?w)
+                                  ("@private" . ?p)
+                                  (:endgroup . nil)
+                                  ;; Context
+                                  (:startgroup . nil)
+                                  ("@telephone" . ?t)
+                                  ("@email" . ?e)
+                                  ("@in_person" . ?i)
+                                  ("@web" . ?n)
+                                  (:endgroup . nil)
+                                  ;; Action
+                                  (:startgroup . nil)
+                                  ("@money_xfer" . ?m)
+                                  ("@buy" . ?b)
+                                  ("@read" . ?r)
+                                  ("@plan" . ?l)
+                                  (:endgroup . nil)
+                                  )
+                  )
+            (use-package evil-org)
+            )
+    :bind (
+           ("C-c l" . org-store-link)
+           ("C-c a" . org-agenda)
+           ("C-c c" . org-capture)
+           ("C-c r" . org-remember)
+           )))
 
-(if (use-package-p 'zenburn-theme)
-    (if (display-graphic-p)
-        (use-package zenburn-theme
-          :ensure zenburn-theme
-          )))
+(when (use-package-p 'zenburn-theme)
+  (if (display-graphic-p)
+      (use-package zenburn-theme
+        :ensure zenburn-theme
+        )))
 
-(if (use-package-p 'auto-complete)
-    (use-package auto-complete
-      :ensure auto-complete
-      :init (progn
-              (require 'auto-complete-config)
-              (ac-config-default)
-              )))
+(when (use-package-p 'auto-complete)
+  (use-package auto-complete
+    :ensure auto-complete
+    :init (progn
+            (require 'auto-complete-config)
+            (ac-config-default)
+            )))
 
 ;; Ensure we run an Emacs server
 (require 'server)
 (unless (server-running-p)
   (server-start))
 
-(if (use-package-p 'setup-keys)
-    (require 'setup-keys))
+(when (use-package-p 'setup-keys)
+  (require 'setup-keys))
 
 ;; Conclude init by setting up specifics for the current user
 (when (file-exists-p user-settings-dir)
