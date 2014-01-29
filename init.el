@@ -42,6 +42,7 @@
         (ido-anywhere . t)
         (setup-keys . nil)
         (zenburn-theme . t)
+        (python-mode.el t)
         ))
 
 (defun use-package-p (p)
@@ -77,14 +78,6 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (setq user-package-conf (concat user-settings-dir "/use-package-config.el"))
 
-(unless (file-exists-p user-package-conf)
-  (append-to-file
-   (mapconcat (lambda (x)
-                (format ";; (push '(%s . t) default-package-settings-alist) ;; default: %s" (car x) (cdr x)))
-              default-package-settings-alist "\n")
-   nil
-   user-package-conf))
-
 ;; Create directories
 (setq my-dirs (list site-lisp-dir
                     user-settings-dir
@@ -94,6 +87,15 @@
 (dolist (d my-dirs)
   (unless (file-directory-p d)
     (mkdir d t)))
+
+;; Create user package settings file if it doesn't exist
+(unless (file-exists-p user-package-conf)
+  (append-to-file
+   (mapconcat (lambda (x)
+                (format ";; (push '(%s . t) default-package-settings-alist) ;; default: %s" (car x) (cdr x)))
+              default-package-settings-alist "\n")
+   nil
+   user-package-conf))
 
 ;;;; Set up load path
 
@@ -118,7 +120,7 @@
 (add-to-list 'load-path user-settings-dir)
 ;; Load per-user package-config file to override package activation on top of this file.
 (if (file-readable-p user-package-conf)
-      (load-file user-package-conf))
+    (load-file user-package-conf))
 
 ;; Keep emacs Custom-settings in separate file
 (if (file-exists-p custom-file)
@@ -183,6 +185,25 @@
 ;;; /el-get
 
 ;;;; Actual package configuration follows
+
+(if (use-package-p 'python-mode.el)
+    (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
+  (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
+  (use-package python-mode
+    :init (progn
+            (use-package jedi
+              :ensure jedi
+              :init (progn
+                      (setq jedi:setup-keys t)
+                      (setq jedi:complete-on-dot t)))
+            (add-hook 'python-mode-hook (lambda ()
+                                          ('jedi:setup)
+                                          (define-key python-mode-map "\r" 'newline-and-indent)
+                                          (define-key python-mode-map (kbd "M-p") 'python-nav-backward-block)
+                                          (define-key python-mode-map (kbd "M-n") 'python-nav-forward-block)
+                                          (define-key python-mode-map (kbd "M-a") 'python-nav-backward-statement)
+                                          (define-key python-mode-map (kbd "M-e") 'python-nav-forward-statement)))
+            )))
 
 (use-package recentf)
 
