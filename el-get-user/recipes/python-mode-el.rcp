@@ -1,0 +1,6 @@
+(:name python-mode-el
+       :description "python-mode.el from http://launchpad.net/python-mode/"
+       :type http-tar
+       :options ("xzf")
+       :url "https://launchpadlibrarian.net/163833114/python-mode.el-6.1.3.tar.gz"
+       )
