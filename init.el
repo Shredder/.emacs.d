@@ -80,8 +80,8 @@
 (unless (file-exists-p user-package-conf)
   (append-to-file
    (mapconcat (lambda (x)
-                (format ";; (push '(%s . t) default-package-settings-alist)" (car x)))
-                default-package-settings-alist "\n")
+                (format ";; (push '(%s . t) default-package-settings-alist) ;; default: %s" (car x) (cdr x)))
+              default-package-settings-alist "\n")
    nil
    user-package-conf))
 
@@ -183,6 +183,8 @@
 ;;; /el-get
 
 ;;;; Actual package configuration follows
+
+(use-package recentf)
 
 ;; Needed for defuns/buffer-defuns.el included in setup/setup-keys.el
 (use-package s
