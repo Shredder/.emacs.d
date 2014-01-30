@@ -145,10 +145,10 @@
 
 ;; Initialization of package.el
 (require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(setq package-archives '(("org" . "http://orgmode.org/elpa/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")))
+                         ;; ("gnu" . "http://elpa.gnu.org/packages/")) ;; Currently offline
 (package-initialize)
 (package-refresh-contents)
 
@@ -459,22 +459,32 @@
     :init (progn
             (setq org-directory (expand-file-name "~/org")
                   org-default-notes-file (expand-file-name "notes.org" org-directory)
-                  org-log-done 'time
+                  org-log-done 'note ;; or 'time
                   org-hide-leading-stars t
                   org-fast-tag-selection-single-key nil
+                  org-treat-insert-todo-heading-as-state-change t
+                  org-treat-S-cursor-todo-selection-as-state-change nil
                   org-export-htmlize-output-type 'css
                   org-completion-use-ido t
+                  org-refile-use-outline-path t
+                  org-outline-path-complete-in-steps nil
                   org-special-ctrl-a/e t
                   org-special-ctrl-k t
                   org-odd-levels-only t
                   org-log-into-drawer t
-                  org-todo-keywords '(
-                                      (sequence "TODO(t)" "STARTED(s)" "WAITING(w@/!)" "|" "DONE(d!)")
+                  org-enforce-todo-dependencies t
+                  org-enforce-todo-checkbox-dependencies t
+                  org-return-follows-link t
+                  ;; (t) quick selection key
+                  ;; general form: (<enter>/<exit>)
+                  ;; @ log note
+                  ;; ! log timestamp
+                  ;; | separates "done" states
+                  ;; Since org-log-done is 'note, the "done" states don't need explicit @.
+                  org-todo-keywords '((sequence "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "|" "DONE(d)")
                                       (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                                      (sequence "|" "CANCELED(c@)")
-                                      )
-                  org-tag-alist '(
-                                  ;; Nature
+                                      (sequence "|" "CANCELED(c)"))
+                  org-tag-alist '(;; Nature
                                   (:startgroup . nil)
                                   ("@work" . ?w)
                                   ("@private" . ?p)
@@ -492,13 +502,19 @@
                                   ("@buy" . ?b)
                                   ("@read" . ?r)
                                   ("@plan" . ?l)
-                                  (:endgroup . nil)
-                                  )
+                                  (:endgroup . nil))
+                  ;; More stuff to configure:
+                  ;; org-todo-state-tags-triggers
+                  ;; org-capture-templates
+                  ;; all refile stuff
                   )
-            (use-package evil-org)
-            )
-    :bind (
-           ("C-c l" . org-store-link)
+            (defun org-summary-todo (n-done n-not-done)
+              "Switch entry to DONE when all subentries are done, to TODO otherwise."
+              (let (org-log-done org-log-states)   ; turn off logging
+                (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+            (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+            (use-package evil-org))
+    :bind (("C-c l" . org-store-link)
            ("C-c a" . org-agenda)
            ("C-c c" . org-capture)
            ("C-c r" . org-remember)
