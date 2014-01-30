@@ -530,4 +530,4 @@
 (when (file-exists-p user-settings-dir)
   (mapc 'load
 	(--filter (not (string= it user-package-config-file))
-		  (directory-files user-settings-dir nil "^[^#].*el$")))
+		  (directory-files user-settings-dir nil "^[^#].*el$"))))
