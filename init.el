@@ -15,7 +15,7 @@
 ;; Configure which modules to run
 ;; These should be reasonable defaults and can be overridden by the user.
 ;; Copy this block to
-;;                ~/.emacs.d/users/<user>/use-package-config.el
+;;                ~/.emacs.d/users/<user>/user-package-config.el
 ;; and customize.
 ;; Add other .el files in that directory to further setup emacs. These files
 ;; will be loaded (in alphabetic order) at the end of this emacs config.
@@ -57,7 +57,7 @@
 ;; Setup directory for config files part of this config
 ;; ~/.emacs.d/setup
 (setq setup-dir
-      (expand-file-name "setup" user-emacs-directory) 
+      (expand-file-name "setup" user-emacs-directory)) 
 
 ;; Functions (load all files in defuns-dir)
 (setq defuns-dir
@@ -72,7 +72,7 @@
 ;; ~/.emacs.d/users/<user> (sourced at the end of this file)
 (setq user-settings-dir
       (expand-file-name user-login-name
-                        (expand-file-name "users" user-emacs-directory)))
+			(expand-file-name "users" user-emacs-directory)))
 
 ;; Directory for backup files
 (setq backup-dir
@@ -82,12 +82,12 @@
       (expand-file-name "custom.el" user-emacs-directory))
 (setq user-package-config-file "user-package-config.el")
 (setq user-package-conf
-      (expand-file-name use-package-config-file user-settings-dir))
+      (expand-file-name user-package-config-file user-settings-dir))
 
 ;; Create directories
 (setq my-dirs (list site-lisp-dir
-                    user-settings-dir
-                    backup-dir))
+		    user-settings-dir
+		    backup-dir))
 
 ;; Create directories if they don't exist
 (dolist (d my-dirs)
@@ -98,8 +98,8 @@
 (unless (file-exists-p user-package-conf)
   (append-to-file
    (mapconcat (lambda (x)
-                (format ";; (push '(%s . t) default-package-settings-alist) ;; default: %s" (car x) (cdr x)))
-              default-package-settings-alist "\n")
+		(format ";; (push '(%s . t) default-package-settings-alist) ;; default: %s" (car x) (cdr x)))
+	      default-package-settings-alist "\n")
    nil
    user-package-conf))
 
@@ -175,14 +175,13 @@
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
 
 ;; Packages which are not available through package.el
-(setq my-packages (append
-                   '(evil
-                     evil-surround
-                     evil-exchange
-                     evil-org
-                     ;; python-mode-el
-                     )
-                   (mapcar 'el-get-source-name el-get-sources)))
+(setq my-packages (append '(evil
+                            evil-surround
+                            evil-exchange
+                            evil-org
+                            ;; python-mode-el
+                            )
+                          (mapcar 'el-get-source-name el-get-sources)))
 
 ;; Install
 (dolist (p my-packages)
@@ -199,9 +198,9 @@
 
 (when (use-package-p 'python-mode.el)
   (add-to-list 'load-path
-               (expand-file-name "python-mode.el-current" site-lisp-dir)) 
+	       (expand-file-name "python-mode.el-current" site-lisp-dir)) 
   (setq py-install-directory
-        (expand-file-name "python-mode.el-current" site-lisp-dir))
+	(expand-file-name "python-mode.el-current" site-lisp-dir))
   ;; (setq py-install-directory (expand-file-name "el-get/python-mode-el" user-emacs-directory))
   (use-package python-mode
     :init (progn
@@ -530,5 +529,5 @@
 ;; Conclude init by setting up specifics for the current user
 (when (file-exists-p user-settings-dir)
   (mapc 'load
-        (--filter (not (string= it user-package-config-file))
-                  (directory-files user-settings-dir nil "^[^#].*el$")))
+	(--filter (not (string= it user-package-config-file))
+		  (directory-files user-settings-dir nil "^[^#].*el$")))
