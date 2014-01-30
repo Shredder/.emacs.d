@@ -56,10 +56,12 @@
 
 ;; Setup directory for config files part of this config
 ;; ~/.emacs.d/setup
-(setq setup-dir (concat user-emacs-directory "setup"))
+(setq setup-dir
+      (expand-file-name "setup" user-emacs-directory) 
 
 ;; Functions (load all files in defuns-dir)
-(setq defuns-dir (expand-file-name "defuns" user-emacs-directory))
+(setq defuns-dir
+      (expand-file-name "defuns" user-emacs-directory))
 
 ;; Set path to local code (not installed via package.el or el-get)
 ;; ~/.emacs.d/site-lisp/
@@ -69,14 +71,18 @@
 ;; Settings for currently logged in user go in
 ;; ~/.emacs.d/users/<user> (sourced at the end of this file)
 (setq user-settings-dir
-      (concat user-emacs-directory "users/" user-login-name))
+      (expand-file-name user-login-name
+                        (expand-file-name "users" user-emacs-directory)))
 
 ;; Directory for backup files
 (setq backup-dir
-      (expand-file-name (concat user-emacs-directory "backups")))
-
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(setq user-package-conf (concat user-settings-dir "/use-package-config.el"))
+      (expand-file-name
+       (expand-file-name "backups" user-emacs-directory)))
+(setq custom-file
+      (expand-file-name "custom.el" user-emacs-directory))
+(setq user-package-config-file "user-package-config.el")
+(setq user-package-conf
+      (expand-file-name use-package-config-file user-settings-dir))
 
 ;; Create directories
 (setq my-dirs (list site-lisp-dir
@@ -128,8 +134,7 @@
 
 ;; Write backup files to own directory
 (setq backup-directory-alist
-      `(("." . ,(expand-file-name
-                 (concat user-emacs-directory "backups")))))
+      `(("." . ,(expand-file-name backup-dir))))
 
 ;; Make backups of files, even when they're in version control
 (setq vc-make-backup-files t)
@@ -171,7 +176,8 @@
 
 ;; Packages which are not available through package.el
 (setq my-packages (append
-                   '(evil-surround
+                   '(evil
+                     evil-surround
                      evil-exchange
                      evil-org
                      ;; python-mode-el
@@ -192,9 +198,11 @@
 ;;;; Actual package configuration follows
 
 (when (use-package-p 'python-mode.el)
-  (add-to-list 'load-path (concat site-lisp-dir "/python-mode.el-current/")) 
-  (setq py-install-directory (concat site-lisp-dir "/python-mode.el-current/"))
-  ;; (setq py-install-directory (concat user-emacs-directory "/el-get/python-mode-el"))
+  (add-to-list 'load-path
+               (expand-file-name "python-mode.el-current" site-lisp-dir)) 
+  (setq py-install-directory
+        (expand-file-name "python-mode.el-current" site-lisp-dir))
+  ;; (setq py-install-directory (expand-file-name "el-get/python-mode-el" user-emacs-directory))
   (use-package python-mode
     :init (progn
             (use-package jedi
@@ -213,9 +221,12 @@
 
 (use-package recentf)
 
+;; Useful elisp libraries
 ;; Needed for defuns/buffer-defuns.el included in setup/setup-keys.el
 (use-package s
   :ensure s)
+(use-package dash
+  :ensure dash)
 
 (when (use-package-p 'better-defaults)
   (use-package better-defaults
@@ -447,8 +458,8 @@
   (use-package org
     :ensure org
     :init (progn
-            (setq org-directory "~/org"
-                  org-default-notes-file (concat org-directory "/notes.org")
+            (setq org-directory (expand-file-name "~/org")
+                  org-default-notes-file (expand-file-name "notes.org" org-directory)
                   org-log-done 'time
                   org-hide-leading-stars t
                   org-fast-tag-selection-single-key nil
@@ -518,4 +529,6 @@
 
 ;; Conclude init by setting up specifics for the current user
 (when (file-exists-p user-settings-dir)
-  (mapc 'load (directory-files user-settings-dir nil "^[^#].*el$")))
+  (mapc 'load
+        (--filter (not (string= it user-package-config-file))
+                  (directory-files user-settings-dir nil "^[^#].*el$")))
