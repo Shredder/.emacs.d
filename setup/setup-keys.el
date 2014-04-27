@@ -59,4 +59,7 @@
       (beginning-of-line)))
 (bind-key "C-a" 'back-to-indentation-or-beginning)
 
+(global-set-key (kbd "C-x +") 'text-scale-increase)
+(global-set-key (kbd "C-x -") 'text-scale-decrease)
+
 (provide 'setup-keys)

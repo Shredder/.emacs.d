@@ -14,6 +14,8 @@
 	      tab-width 8
 	      )
 
+(set-face-attribute 'default nil :height 120)
+
 ;;;; Modes
 
 (electric-pair-mode t)

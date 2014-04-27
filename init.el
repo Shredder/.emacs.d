@@ -174,9 +174,10 @@
 (require 'el-get)
 (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
 
+(when (use-package-p 'evil)
+  (setq evil-want-C-u-scroll t))
 ;; Packages which are not available through package.el
-(setq my-packages (append '(evil
-                            evil-surround
+(setq my-packages (append '(evil-surround
                             evil-org
                             ;; python-mode-el
                             )
@@ -236,7 +237,7 @@
     :ensure evil
     :init (progn
             (evil-mode 1)
-            (setq evil-search-mode 'evil-search)
+            (setq evil-search-module 'evil-search)
             (require 'cl)
             ;; Change modeline color with mode
             (lexical-let ((default-color (cons (face-background 'mode-line)
@@ -281,6 +282,7 @@
                         "e" 'find-file
                         "b" 'switch-to-buffer
                         "k" 'kill-buffer
+                        "r" 'recentf-open-files
                         )
                       ))
             (use-package evil-numbers
