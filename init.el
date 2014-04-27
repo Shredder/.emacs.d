@@ -177,7 +177,6 @@
 ;; Packages which are not available through package.el
 (setq my-packages (append '(evil
                             evil-surround
-                            evil-exchange
                             evil-org
                             ;; python-mode-el
                             )
@@ -237,6 +236,7 @@
     :ensure evil
     :init (progn
             (evil-mode 1)
+            (setq evil-search-mode 'evil-search)
             (require 'cl)
             ;; Change modeline color with mode
             (lexical-let ((default-color (cons (face-background 'mode-line)
@@ -276,12 +276,18 @@
               :ensure evil-leader
               :init (progn
                       (global-evil-leader-mode)
-                      (evil-leader/set-leader ",")
+                      (evil-leader/set-leader "\\")
                       (evil-leader/set-key
                         "e" 'find-file
                         "b" 'switch-to-buffer
                         "k" 'kill-buffer
                         )
+                      ))
+            (use-package evil-numbers
+              :ensure evil-numbers
+              :init (progn
+                      (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
+                      (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
                       ))
             )))
 
@@ -351,6 +357,39 @@
     :ensure ido
     :init (progn
             (ido-mode t)
+            (setq ido-enable-prefix nil
+                  ido-enable-flex-matching t
+                  ido-case-fold nil
+                  ido-auto-merge-work-directories-length -1
+                  ido-create-new-buffer 'always
+                  ido-use-filename-at-point nil
+                  ido-max-prospects 10
+                  ido-use-faces nil ; to see flx highlights
+                  )
+            (define-key ido-file-completion-map (kbd "C-w") 'ido-delete-backward-updir)
+            (define-key ido-file-completion-map (kbd "C-x C-w") 'ido-copy-current-file-name)
+            (define-key ido-file-dir-completion-map (kbd "C-w") 'ido-delete-backward-updir)
+            (define-key ido-file-dir-completion-map (kbd "C-x C-w") 'ido-copy-current-file-name)
+            (use-package ido-vertical-mode
+              :ensure ido-vertical-mode
+              :init (progn
+                      (ido-vertical-mode)
+                      ))
+            (use-package flx-ido
+              :ensure flx-ido
+              :init (progn
+                      (flx-ido-mode 1)
+                      ))
+            (use-package ido-at-point
+              :ensure ido-at-point
+              :init (progn
+                      (ido-at-point-mode)
+                      ))
+            (use-package ido-ubiquitous
+              :ensure ido-ubiquitous
+              :init (progn
+                      (ido-ubiquitous-mode 1)
+                      ))
             )
     :bind (
            ("C-x C-i" . ido-imenu)
