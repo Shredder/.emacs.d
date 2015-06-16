@@ -8,6 +8,7 @@
       make-backup-files nil
       auto-save-default nil
       initial-scratch-message ""
+      gc-cons-threshold 20000000 ; see https://github.com/lewang/flx
       )
 
 (setq-default indent-tabs-mode nil

@@ -41,7 +41,8 @@
         (better-defaults . t)
         (ido-anywhere . t)
         (setup-keys . nil)
-        (zenburn-theme . t)
+        (zenburn-theme . nil)
+        (moe-theme . t)
         (python-mode.el nil)
         ))
 
@@ -115,7 +116,7 @@
 (add-to-list 'load-path defuns-dir)
 
 ;; Files in ~/.emacs.d/ (for setup-*.el files part of this config)
-(add-to-list 'load-path user-emacs-directory)
+;(add-to-list 'load-path user-emacs-directory)
 ;; Files in ~/.emacs.d/site-lisp/
 (add-to-list 'load-path site-lisp-dir)
 ;; Files within directories in ~/.emacs.d/site-lisp/
@@ -196,6 +197,9 @@
 
 ;;;; Actual package configuration follows
 
+(when (use-package-p 'setup-keys)
+  (require 'setup-keys))
+
 (when (use-package-p 'python-mode.el)
   (add-to-list 'load-path
 	       (expand-file-name "python-mode.el-current" site-lisp-dir)) 
@@ -265,7 +269,7 @@
             (use-package evil-exchange
               ;; Installed by el-get
               :init (progn
-                      ;; (setq evil-exchange-key (kbd "z"))
+                      (setq evil-exchange-key (kbd "zx"))
                       (evil-exchange-install)
                       ))
             (use-package evil-nerd-commenter
@@ -290,6 +294,25 @@
               :init (progn
                       (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
                       (define-key evil-normal-state-map (kbd "C-c -") 'evil-numbers/dec-at-pt)
+                      ))
+            (use-package evil-visualstar
+              :ensure evil-visualstar
+              )
+            (use-package evil-args
+              :ensure evil-args
+              :init (progn
+                      ;; bind evil-args text objects
+                      (define-key evil-inner-text-objects-map "a" 'evil-inner-arg)
+                      (define-key evil-outer-text-objects-map "a" 'evil-outer-arg)
+
+                      ;; bind evil-forward/backward-args
+                      (define-key evil-normal-state-map "L" 'evil-forward-arg)
+                      (define-key evil-normal-state-map "H" 'evil-backward-arg)
+                      (define-key evil-motion-state-map "L" 'evil-forward-arg)
+                      (define-key evil-motion-state-map "H" 'evil-backward-arg)
+
+                      ;; bind evil-jump-out-args
+                      (define-key evil-normal-state-map "K" 'evil-jump-out-args)
                       ))
             )))
 
@@ -498,73 +521,288 @@
   (use-package org
     :ensure org
     :init (progn
+            (use-package org-pomodoro
+              :ensure org-pomodoro)
+            (use-package org-wc
+              :ensure org-wc)
+            (use-package deft
+              :ensure deft)
+            (use-package todochiku
+              :ensure todochiku)
+            ;; Deft configuration
+            (setq deft-directory "~/org"
+                  deft-extension "org"
+                  deft-text-mode 'org-mode
+                  deft-use-filename-as-title t
+                  )
+            ;; (global-set-key [f8] 'deft)
+            (global-set-key [f8] 'deft)
+
+            
+            (add-to-list 'org-modules 'org-habit)
             (setq org-directory (expand-file-name "~/org")
                   org-default-notes-file (expand-file-name "notes.org" org-directory)
                   org-log-done 'note ;; or 'time
                   org-hide-leading-stars t
+                  org-use-speed-commands nil
+                  org-show-notification-handler '(lambda (notification)
+                                                   (todochiku-message "org-mode notification" notification
+                                                                      (todochiku-icon 'emacs)))
+                  appt-activate 1
+                  appt-message-warning-time 15
+                  appt-display-mode-line t
+                  appt-display-interval 5
+                  appt-display-format 'window
+
+                  org-startup-folded nil
+                  org-habit-show-habits-only-for-today nil
+                  org-habit-graph-column 81
+                  org-use-fast-todo-selection t
                   org-fast-tag-selection-single-key nil
                   org-treat-insert-todo-heading-as-state-change t
                   org-treat-S-cursor-todo-selection-as-state-change nil
-                  org-export-htmlize-output-type 'css
+                  org-agenda-skip-scheduled-if-done t
+                  org-agenda-skip-deadline-if-done t
+                  org-deadline-warning-days 7
+                  org-agenda-skip-scheduled-if-deadline-is-shown t
                   org-completion-use-ido t
                   org-refile-use-outline-path t
-                  org-outline-path-complete-in-steps nil
+                  org-outline-path-complete-in-steps t
+                  org-reverse-note-order t
+                  org-agenda-files '("~/org")
+                  org-refile-targets (quote ((nil :maxlevel . 3)
+                                             (org-agenda-files :maxlevel . 3)))
+                  org-agenda-persistent-filter t
+                  org-yank-adjusted-subtrees t
+                  org-refile-allow-creating-parent-nodes t
                   org-special-ctrl-a/e t
                   org-special-ctrl-k t
                   org-odd-levels-only t
                   org-log-into-drawer t
+                  org-agenda-span 'day
+                  org-agenda-sticky nil ;; Change later to use multiple agendas?
+                  org-log-state-notes-insert-after-drawers nil
                   org-enforce-todo-dependencies t
                   org-enforce-todo-checkbox-dependencies t
                   org-return-follows-link t
+                  org-reverse-note-order t
+                  org-tags-column 80
+                  org-agenda-custom-commands
+                        '(("s" todo "STARTED" nil)
+                          ("n" todo "NEXT" nil)
+                          ("h" todo "HOLD" nil)
+                          ("w" todo "WAITING" nil)
+                          ("e" todo "DEFERRED" nil)
+                          ("o" todo "SOMEDAY" nil)
+                          ("c" todo "DONE|DEFERRED|CANCELLED" nil)
+                          ("d" "Agenda + Next Actions" ((agenda) (todo "NEXT")))
+                          ("W" "Agenda for next 21 days" agenda "" ((org-agenda-ndays 21)))
+                          ("A" "Today's Priority #A tasks" agenda ""
+                           ((org-agenda-skip-function
+                             (lambda nil
+                               (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]")))
+                            (org-agenda-ndays 1)
+                            (org-agenda-overriding-header "Today's Priority #A tasks: ")))
+                          ("u" "Unscheduled TODO entries" alltodo ""
+                           ((org-agenda-skip-function
+                             (lambda nil
+                               (org-agenda-skip-entry-if (quote scheduled) (quote deadline)
+                                                         (quote regexp) "\n]+>")))
+                            (org-agenda-overriding-header "Unscheduled TODO entries: ")))
+                          )
                   ;; (t) quick selection key
                   ;; general form: (<enter>/<exit>)
                   ;; @ log note
                   ;; ! log timestamp
                   ;; | separates "done" states
                   ;; Since org-log-done is 'note, the "done" states don't need explicit @.
-                  org-todo-keywords '((sequence "TODO(t)" "STARTED(s@)" "WAITING(w@/!)" "|" "DONE(d)")
-                                      (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                                      (sequence "|" "CANCELED(c)"))
-                  org-tag-alist '(;; Nature
-                                  (:startgroup . nil)
-                                  ("@work" . ?w)
-                                  ("@private" . ?p)
-                                  (:endgroup . nil)
-                                  ;; Context
-                                  (:startgroup . nil)
-                                  ("@telephone" . ?t)
-                                  ("@email" . ?e)
-                                  ("@in_person" . ?i)
-                                  ("@web" . ?n)
-                                  (:endgroup . nil)
-                                  ;; Action
-                                  (:startgroup . nil)
-                                  ("@money_xfer" . ?m)
-                                  ("@buy" . ?b)
-                                  ("@read" . ?r)
-                                  ("@plan" . ?l)
-                                  (:endgroup . nil))
+                  org-todo-keywords '((sequence "TODO(t!)" "NEXT(n!)" "STARTED(s!)" "|" "DONE(d@/!)")
+                                      (sequence "WAITING(w@/!)" "HOLD(h@/!)" "DEFERRED(d@/!)" "SOMEDAY(o!)" "|" "CANCELLED(c@/!)"))
+                  org-tag-persistent-alist '(
+                                             ;; Nature
+                                             (:startgroup . nil)
+                                             ("@work" . ?w)
+                                             ("@private" . ?p)
+                                             (:endgroup . nil)
+                                             ;; Context
+                                             (:startgroup . nil)
+                                             ("telephone" . ?t)
+                                             ("email" . ?e)
+                                             ("inPerson" . ?i)
+                                             ("web" . ?n)
+                                             (:endgroup . nil)
+                                             ;; Action
+                                             (:startgroup . nil)
+                                             ("money_xfer" . ?m)
+                                             ("buy" . ?b)
+                                             ("read" . ?r)
+                                             ("plan" . ?l)
+                                             (:endgroup . nil))
                   ;; More stuff to configure:
                   ;; org-todo-state-tags-triggers
-                  ;; org-capture-templates
+                  org-todo-state-tags-triggers '(("CANCELLED" ("CANCELLED" . t))
+                                                 ("WAITING" ("WAITING" . t))
+                                                 ("HOLD" ("WAITING") ("HOLD" . t))
+                                                 (done ("WAITING") ("HOLD"))
+                                                 ("TODO" ("WAITING") ("CANCELLED") ("HOLD"))
+                                                 ("NEXT" ("WAITING") ("CANCELLED") ("HOLD"))
+                                                 ("DONE" ("WAITING") ("CANCELLED") ("HOLD")))
+                  org-capture-templates '(
+                                          ("t" "Todo" entry (file+headline "~/org/priv.org" "Inbox (to sort)")
+                                           "* TODO %?\n")
+                                          ("a" "Appointment" entry (file+headline "~/org/priv.org" "Appointments")
+                                           "* %? %^T%^G\n")
+                                          ("j" "Journal" entry (file "~/org/journal.org")
+                                           "* %U %?\n\n  %i\n  %a")
+                                          ("i" "Idea" entry (file "~/org/ideas.org")
+                                           "* %^{Title}\n  %i\n  %a" "~/remember.org" "New Ideas")
+                                          ("n" "note" entry (file "~/org/refile.org")
+               "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+                                          )
                   ;; all refile stuff
+                  ;; export stuff
+                  org-html-head-include-default-style nil
+                  org-html-head ""
+                  org-html-use-infojs t
+                  org-export-default-language "en"
+                  org-export-html-extension "html"
+                  org-export-with-timestamps t
+                  org-export-with-drawers t
+                  org-export-with-section-numbers nil
+                  org-export-with-tags 'not-in-toc
+                  org-export-skip-text-before-1st-heading nil
+                  org-export-with-sub-superscripts '{}
+                  org-export-with-LaTeX-fragments t
+                  org-export-with-archived-trees nil
+                  org-export-highlight-first-table-line t
+                  org-export-latex-listings-w-names nil
+                  org-export-htmlize-output-type 'css
+                  org-export-allow-BIND t
+                  org-export-babel-evaluate nil
+                  org-confirm-babel-evaluate nil
+                  org-publish-list-skipped-files t
+                  org-publish-use-timestamps-flag t
+                  ;; publish
+                  ;; re-export everything regardless of whether or not it's been modified
+                  org-publish-use-timestamps-flag t
+
+                  worg-base "/Users/jozi/Dropbox/git/org/"
+                  worg-base-directory worg-base
+
+                  worg-htmlroot "/Users/jozi/Dropbox/git/org-publish/html"
+                  worg-publish-directory worg-htmlroot
+
+                  worg-html-head (concat
+                                  "<link rel=\"stylesheet\" title=\"Standard\" href=\""
+                                  worg-htmlroot
+                                  "/style/worg.css\" type\"text/css\" />"
+
+                                  "<link rel=\"alternate stylesheet\" title=\"Zenburn\" href=\""
+                                  worg-htmlroot
+                                  "/style/worg-zenburn.css\" type\"text/css\" />"
+
+                                  "<link rel=\"alternate stylesheet\" title=\"Classic\" href=\""
+                                  worg-htmlroot
+                                  "/style/worg-classic.css\" type\"text/css\" />"
+
+                                  "<a href=\"index.html\">Back to index</a>"
+                                  )
+
+                  worg-html-preamble ""
+                  worg-html-postamble ""
+
+                  org-publish-project-alist
+                  `(("all"
+                     :components ("org", "images", "css")
+                     )
+                    ("org"
+                     :base-directory ,worg-base-directory
+                     :base-extension "org"
+                     ;; :exclude "FIXME"
+                     :makeindex t
+                     :auto-sitemap nil
+                     ;; :sitemap-ignore-case t
+                     :html-extension "html"
+                     :publishing-directory ,worg-publish-directory
+                     :publishing-function (org-html-publish-to-html org-org-publish-to-org)
+                     :htmlized-source t
+                     :section-numbers nil
+                     :table-of-contents nil
+                     :html-head ,worg-html-head
+                     :html-preamble ,worg-html-preamble
+                     :html-postamble ,worg-html-postamble
+                     :recursive t
+                     )
+                    ("images"
+                     :base-directory ,worg-base-directory
+                     :base-extension "png\\|jpg\\|gif\\|pdf\\|csv\\|css\\|tex"
+                     :publishing-directory ,worg-publish-directory
+                     :publishing-function org-publish-attachment
+                     :recursive t
+                     )
+                    ("css"
+                     :base-directory ,worg-base-directory
+                     :base-extension "css"
+                     :publishing-directory ,worg-publish-directory
+                     :publishing-function org-publish-attachment
+                     :recursive t
+                     )
+                    )
                   )
+            (org-agenda-to-appt) ; For reminders
+            (display-time)
+            (add-hook 'org-capture-after-finalize-hook 'org-agenda-to-appt)
+            (run-with-timer 0 (* 30 60) 'org-agenda-to-appt)
+            (add-hook 'org-capture-mode-hook 'evil-insert-state)
             (defun org-summary-todo (n-done n-not-done)
               "Switch entry to DONE when all subentries are done, to TODO otherwise."
               (let (org-log-done org-log-states)   ; turn off logging
                 (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
             (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
-            (use-package evil-org))
+            (use-package evil-org)
+            (use-package htmlize)
+            (use-package ox-org)
+            (eval-after-load "org-html"
+              '(setq org-html-scripts
+                     (concat org-html-scripts "\n"
+                             "<script type=\"text/javascript\">
+    function rpl(expr,a,b) {
+      var i=0
+      while (i!=-1) {
+         i=expr.indexOf(a,i);
+         if (i>=0) {
+            expr=expr.substring(0,i)+b+expr.substring(i+a.length);
+            i+=b.length;
+         }
+      }
+      return expr
+    }
+
+    function show_org_source(){
+       document.location.href = rpl(document.location.href,\"html\",\"org.html\");
+    }
+</script>
+")))
+            )
     :bind (("C-c l" . org-store-link)
            ("C-c a" . org-agenda)
+           ("<f9>" . org-agenda)
            ("C-c c" . org-capture)
-           ("C-c r" . org-remember)
+           ("C-c b" . org-iswitchb)
            )))
 
 (when (use-package-p 'zenburn-theme)
   (if (display-graphic-p)
       (use-package zenburn-theme
         :ensure zenburn-theme
+        )))
+
+(when (use-package-p 'moe-theme)
+  (if (display-graphic-p)
+      (use-package moe-theme
+        :ensure moe-theme
+        :init (progn
+                (moe-dark))
         )))
 
 (when (use-package-p 'auto-complete)
@@ -580,11 +818,15 @@
 (unless (server-running-p)
   (server-start))
 
-(when (use-package-p 'setup-keys)
-  (require 'setup-keys))
-
 ;; Conclude init by setting up specifics for the current user
 (when (file-exists-p user-settings-dir)
   (mapc 'load
 	(--filter (not (string= it user-package-config-file))
 		  (directory-files user-settings-dir nil "^[^#].*el$"))))
+
+(defun toggle-fullscreen ()
+  "Toggle full screen"
+  (interactive)
+  (set-frame-parameter
+     nil 'fullscreen
+     (when (not (frame-parameter nil 'fullscreen)) 'fullboth)))

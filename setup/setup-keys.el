@@ -29,7 +29,7 @@
 
 (bind-key "C-x C-i" 'ido-imenu)
 
-(bind-key "C-x 3" 'split-window-right-and-move-there-damnit)
+;; (bind-key "C-x 3" 'split-window-right-and-move-there-damnit)
 
 (bind-key "<f1> a" 'apropos)
 
@@ -61,5 +61,7 @@
 
 (global-set-key (kbd "C-x +") 'text-scale-increase)
 (global-set-key (kbd "C-x -") 'text-scale-decrease)
+
+(global-set-key (kbd "<f9> c") 'calendar)
 
 (provide 'setup-keys)
